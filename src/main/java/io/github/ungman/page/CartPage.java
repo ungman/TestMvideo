@@ -14,6 +14,10 @@ public class CartPage {
     @FindBy(name = "/atg/commerce/order/purchase/CartModifierFormHandler.moveToPurchaseInfoByCommerceId")
     private WebElement continueOrderButton;
 
+//    @FindBy(xpath = "//input[@value=''")
+    @FindBy(css = "#courier_ci57046207847")
+    private WebElement withCurierButton;
+
     public CartPage(WebDriver webDriver) {
         this.webDriver = webDriver;
         PageFactory.initElements(webDriver, this);
@@ -33,6 +37,14 @@ public class CartPage {
                 .click(continueOrderButton)
                 .build()
                 .perform();
+    }
+
+    public CartPage clickToDelivery(){
+        new Actions(webDriver)
+                .click(withCurierButton)
+                .build()
+                .perform();
+        return this;
     }
 
 }

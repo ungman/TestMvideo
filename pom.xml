@@ -37,11 +37,11 @@
             <version>LATEST</version>
         </dependency>
         <!-- https://mvnrepository.com/artifact/com.sikulix/sikulixapi -->
-        <dependency>
-            <groupId>com.sikulix</groupId>
-            <artifactId>sikulixapi</artifactId>
-            <version>LATEST</version>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>com.sikulix</groupId>-->
+<!--            <artifactId>sikulixapi</artifactId>-->
+<!--            <version>LATEST</version>-->
+<!--        </dependency>-->
 
     </dependencies>
 

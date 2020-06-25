@@ -6,6 +6,7 @@ import io.github.ungman.page.CartPage;
 import io.github.ungman.page.OrderPurchase;
 import io.github.ungman.page.ProductPage;
 import lombok.SneakyThrows;
+import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -32,9 +33,6 @@ public class BuyGoodsByGuestWithoutDelivery extends WevDriverRunner {
     @Test
     public void buyGoodsByGuestWithCash() throws InterruptedException {
         new OrderPurchase(webDriver)
-                .clickToChooseShop()
-                .clickShopList() /* need */
-                .setShop(0) /*need*/
                 .payCash()
                 .setDataToFieldEmail("aaaaa@mail.ru")
                 .setDataToFieldPhone("9099099999")
@@ -51,8 +49,32 @@ public class BuyGoodsByGuestWithoutDelivery extends WevDriverRunner {
                 .setDataToFieldPhone("9099099999")
                 .setDataToFieldName("Иван Иванов")
                 .setDataToFieldAnotherRecipient("Иван Иванов Иванович");
-            Thread.sleep(5000);
+        Thread.sleep(5000);
+
     }
 
+    @SneakyThrows
+    @Test
+    public void tryWithUncorrectEmail(){
+        String textFromLabelEmail = new OrderPurchase(webDriver)
+                .payCash()
+                .setDataToFieldEmail("11111")
+                .setDataToFieldName("123")
+                .getTextFromLabelEmail();
+        String expectedText="Email указан в неверном формате";
+        AssertJUnit.assertEquals("Labrl text not valid",expectedText,textFromLabelEmail);
+    }
+
+    @SneakyThrows
+    @Test
+    public void tryWithUncorrectPhone(){
+        String textFromLabelPhone = new OrderPurchase(webDriver)
+                .payCash()
+                .setDataToFieldEmail("11111")
+                .setDataToFieldName("123")
+                .getTextFromLabelEmail();
+        String expectedText="Телефон указан в неверном формате";
+        AssertJUnit.assertEquals("Label text not valid",expectedText,textFromLabelPhone);
+    }
 
 }
