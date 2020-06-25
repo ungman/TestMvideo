@@ -2,12 +2,16 @@ package io.github.ungman.helper;
 
 import org.jetbrains.annotations.NotNull;
 import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.edge.EdgeDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
+import org.openqa.selenium.firefox.FirefoxOptions;
 import org.testng.annotations.AfterMethod;
+import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.BeforeSuite;
 
@@ -18,15 +22,15 @@ import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
 public class WevDriverRunner {
-    private String webDriverName;
     private final String pathToResourcesFolder = System.getProperty("user.dir") + "\\src\\main\\resources\\";
     protected WebDriver webDriver;
-
+    private String webDriverName;
+    private Properties properties;
 
     @BeforeSuite
     public void setUp() {
         try {
-            final Properties properties = loadPropertyFile();
+            properties = loadPropertyFile();
             setSystemProperties(properties);
             loadPropertyFile();
         } catch (Exception exception) {
@@ -65,9 +69,13 @@ public class WevDriverRunner {
     @BeforeMethod
     public void initMethod() throws Exception {
         if (this.webDriverName.equalsIgnoreCase("chrome")) {
-            this.webDriver = new ChromeDriver();
+            ChromeOptions chromeOptions = new ChromeOptions();
+            chromeOptions.addArguments("--disable-notifications");
+            this.webDriver = new ChromeDriver(chromeOptions);
         } else if (this.webDriverName.equalsIgnoreCase("firefox")) {
-            this.webDriver = new FirefoxDriver();
+            FirefoxOptions firefoxOptions = new FirefoxOptions();
+            firefoxOptions.addPreference("dom.webnotifications.enable", false);
+            this.webDriver = new FirefoxDriver(firefoxOptions);
         } else if (this.webDriverName.equalsIgnoreCase("edge")) {
             this.webDriver = new EdgeDriver();
         } else {
@@ -80,16 +88,30 @@ public class WevDriverRunner {
     protected void closeBrowse(WebDriver webDriver) {
         webDriver.close();
     }
-    protected WebElement getElement(By by){
-        return  this.webDriver.findElement(by);
+
+    protected WebElement getElement(By by) {
+        return this.webDriver.findElement(by);
     }
 
-    protected List<WebElement> getElements(By by){
-        return  this.webDriver.findElements(by);
+    public void closeNotification() {
+        try {
+            ((JavascriptExecutor) webDriver).executeScript("window.alert = function() {}; window.prompt = function() {return null}; window.confirm = function() {return true}");
+        } catch (Exception e) {
+            System.out.println("Close popup;");
+        }
     }
+
+    protected List<WebElement> getElements(By by) {
+        return this.webDriver.findElements(by);
+    }
+
     @AfterMethod
     public void close() {
-        if (webDriver != null)
-            this.webDriver.close();
+        this.webDriver.quit();
+    }
+
+    @AfterTest
+    public void quit() {
+        this.webDriver.quit();
     }
 }
