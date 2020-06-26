@@ -5,6 +5,7 @@ import io.github.ungman.page.AuthPageInOrder;
 import io.github.ungman.page.CartPage;
 import io.github.ungman.page.OrderPurchase;
 import io.github.ungman.page.ProductPage;
+import lombok.SneakyThrows;
 import org.testng.AssertJUnit;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -31,24 +32,28 @@ public class ByGoodsByGuestWithDelivery extends WevDriverRunner {
         };
     }
 
+    @SneakyThrows
     public void withOneGoods(String url) {
-        new ProductPage(webDriver, url).clickToAddCart();
-        CartPage cartPage = new CartPage(webDriver);
-        cartPage.clickToContinueOrderButton();
+        new ProductPage(webDriver, url)
+                .clickToAddCart()
+                .clickToCartPage()
+                .clickToContinueOrderButton();
         new AuthPageInOrder(webDriver).clickToContinueAsGuest();
     }
 
+    @SneakyThrows
     private void withMoreThanOneGoods(String url, String url1) {
         new ProductPage(webDriver, url).clickToAddCart();
-        new ProductPage(webDriver, url1).clickToAddCart();
-        CartPage cartPage = new CartPage(webDriver);
-        cartPage.clickToContinueOrderButton();
+        new ProductPage(webDriver, url1)
+                .clickToAddCart()
+                .clickToCartPage()
+                .clickToButtonDelivery()
+                .clickToContinueOrderButton();
         new AuthPageInOrder(webDriver).clickToContinueAsGuest();
     }
 
-
     @Test(dataProvider = "dataOneGood")
-    public void withOneItemChoose(String url,String text1) {
+    public void withOneItemChoose(String url, String text1) {
         withOneGoods(url);
         new OrderPurchase(webDriver)
                 .clickToButtonDelivery()
@@ -62,10 +67,9 @@ public class ByGoodsByGuestWithDelivery extends WevDriverRunner {
     }
 
     @Test(dataProvider = "dataMultiGoods")
-    public void withMoreItemChoose(String url, String url1,String text1) {
+    public void withMoreItemChoose(String url, String url1, String text1) {
         withMoreThanOneGoods(url, url1);
         new OrderPurchase(webDriver)
-                .clickToButtonDelivery()
                 .setDataToFieldDeliveryAppart("00")
                 .setDataToFieldDeliveryStreet("Нулевая улица")
                 .setDataToFieldDeliveryHouse("00")
@@ -79,7 +83,6 @@ public class ByGoodsByGuestWithDelivery extends WevDriverRunner {
     public void withMoreThanOneItemNotCorrectCity(String url, String url1, String expectedText) {
         withMoreThanOneGoods(url, url1);
         String textFromLabelEmail = new OrderPurchase(webDriver)
-                .clickToButtonDelivery()
                 .setDataToFieldDeliveryCity("Неправильный город")
                 .setDataToFieldDeliveryAppart("00")
                 .setDataToFieldDeliveryStreet("Нулевая улица")

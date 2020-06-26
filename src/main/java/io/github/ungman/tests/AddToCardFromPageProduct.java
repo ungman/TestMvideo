@@ -20,7 +20,7 @@ public class AddToCardFromPageProduct extends WevDriverRunner {
     public void addToCardWithPageObject(String url, String productInfo) {
         WebElement cardProduct = new ProductPage(webDriver, url)
                 .clickToAddCart()
-                .goToCartPage()
+                .clickToCartPage()
                 .getCardProduct(productInfo);
         AssertJUnit.assertNotNull("Product dont have in basket", cardProduct);
     }

@@ -1,16 +1,21 @@
 package io.github.ungman.tests;
 
 import io.github.ungman.helper.WevDriverRunner;
-import io.github.ungman.page.AuthPageInOrder;
-import io.github.ungman.page.CartPage;
 import io.github.ungman.page.OrderPurchase;
 import io.github.ungman.page.ProductPage;
-import lombok.SneakyThrows;
 import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 public class BuyGoodsByGuestWithoutDelivery extends WevDriverRunner {
+
+    @DataProvider
+    public static Object[][] dataPerson() {
+        return new Object[][]{
+                {"Иванов Иван","9099099999","email@email.com"}
+        };
+    }
 
     @BeforeMethod
     @Override
@@ -22,59 +27,72 @@ public class BuyGoodsByGuestWithoutDelivery extends WevDriverRunner {
     private void preCondition() {
         String url = "https://www.mvideo.ru/products/fitnes-treker-xiaomi-mi-band-3-black-xmsh05hm-30040243";
         String url1 = "https://www.mvideo.ru/products/smennyi-remeshok-dlya-nosimogo-ustroistva-mi-band-3-4-strap-orange-30046388";
-        new ProductPage(webDriver, url).clickToAddCart();
-        new ProductPage(webDriver, url1).clickToAddCart();
-        CartPage cartPage = new CartPage(webDriver);
-        cartPage.clickToContinueOrderButton();
-        new AuthPageInOrder(webDriver).clickToContinueAsGuest();
+        new ProductPage(webDriver, url)
+                .clickToAddCart()
+                .clickToCartPage();
+        new ProductPage(webDriver, url1)
+                .clickToAddCart()
+                .clickToCartPage()
+                .clickToContinueOrderButton()
+                .clickToContinueAsGuest();
     }
 
-    @SneakyThrows
-    @Test
-    public void buyGoodsByGuestWithCash() throws InterruptedException {
-        new OrderPurchase(webDriver)
+    @Test(dataProvider = "dataPerson")
+    public void buyGoodsByGuestWithCashWithFirstShopOnList(String name, String phone, String email) throws InterruptedException {
+        final OrderPurchase orderPurchase = new OrderPurchase(webDriver)
                 .payCash()
-                .setDataToFieldEmail("aaaaa@mail.ru")
-                .setDataToFieldPhone("9099099999")
-                .setDataToFieldName("Иван Иванов");
-        Thread.sleep(5000);
+                .clickToChangeShop()
+                .clickShopList()
+                .setShop(1)
+                .setDataToFieldEmail(email)
+                .setDataToFieldPhone(phone)
+                .setDataToFieldName(name)
+                .setDataToFieldEmail(email);
+        AssertJUnit.assertEquals("Field name data not Correct", name, orderPurchase.getFieldNameText());
+        AssertJUnit.assertEquals("Field email data not Correct", email, orderPurchase.getFieldEmailText());
+        AssertJUnit.assertEquals("Field phone data not Correct", "+7"+phone, orderPurchase.getFieldPhoneText().replace(" ",""));
     }
 
-    @SneakyThrows
-    @Test
-    public void buyGoodsByGuestWithCard() {
-        new OrderPurchase(webDriver)
+
+    @Test(dataProvider = "dataPerson")
+    public void buyGoodsByGuestWithCard(String name, String phone, String email) {
+        OrderPurchase orderPurchase = new OrderPurchase(webDriver)
                 .payCard()
-                .setDataToFieldEmail("aaaaa@mail.ru")
-                .setDataToFieldPhone("9099099999")
-                .setDataToFieldName("Иван Иванов")
-                .setDataToFieldAnotherRecipient("Иван Иванов Иванович");
-        Thread.sleep(5000);
+                .setDataToFieldEmail(email)
+                .setDataToFieldPhone(phone)
+                .setDataToFieldName(name)
+                .setDataToFieldAnotherRecipient(name);
+//9099099999
+        AssertJUnit.assertEquals("Field name data not Correct", name, orderPurchase.getFieldNameText());
+        AssertJUnit.assertEquals("Field email data not Correct", email, orderPurchase.getFieldEmailText());
+//        AssertJUnit.assertEquals("Field phone data not Correct", phone, orderPurchase.getFieldPhoneText());
+        AssertJUnit.assertEquals("Field AnotherRecipient data not Correct", phone, orderPurchase.getFieldAnotherRecipientText());
 
     }
 
-    @SneakyThrows
+
     @Test
-    public void tryWithUncorrectEmail(){
+    public void tryWithUncorrectEmail() {
         String textFromLabelEmail = new OrderPurchase(webDriver)
                 .payCash()
                 .setDataToFieldEmail("11111")
                 .setDataToFieldName("123")
                 .getTextFromLabelEmail();
-        String expectedText="Email указан в неверном формате";
-        AssertJUnit.assertEquals("Labrl text not valid",expectedText,textFromLabelEmail);
+        String expectedText = "Email указан в неверном формате";
+        AssertJUnit.assertEquals("Label text not valid", expectedText, textFromLabelEmail);
     }
 
-    @SneakyThrows
+
     @Test
-    public void tryWithUncorrectPhone(){
+    public void tryWithUncorrectPhone() {
         String textFromLabelPhone = new OrderPurchase(webDriver)
                 .payCash()
                 .setDataToFieldEmail("11111")
                 .setDataToFieldName("123")
-                .getTextFromLabelEmail();
-        String expectedText="Телефон указан в неверном формате";
-        AssertJUnit.assertEquals("Label text not valid",expectedText,textFromLabelPhone);
+                .getFieldPhoneText();
+        String expectedText = "Телефон указан в неверном формате";
+        AssertJUnit.assertEquals("Label text not valid", expectedText, textFromLabelPhone);
     }
+
 
 }

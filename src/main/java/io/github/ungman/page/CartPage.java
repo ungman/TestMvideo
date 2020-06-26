@@ -7,15 +7,22 @@ import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class CartPage {
 
     static String URL = "https://www.mvideo.ru/cart";
     WebDriver webDriver;
     @FindBy(name = "/atg/commerce/order/purchase/CartModifierFormHandler.moveToPurchaseInfoByCommerceId")
     private WebElement continueOrderButton;
+    @FindBy(css = "div.c-cart__delivery")
+    private List<WebElement> listDelivery;
+    //    @FindBy(xpath = "//input[@value=''")
 
-//    @FindBy(xpath = "//input[@value=''")
-    @FindBy(css = "#courier_ci57046207847")
+
+
+    @FindBy(css = "#checkout_main > div.o-checkout__step.u-pt-4 > div:nth-child(6) > ul > li:nth-child(2)> input[type='radio']")
     private WebElement withCurierButton;
 
     public CartPage(WebDriver webDriver) {
@@ -32,19 +39,35 @@ public class CartPage {
         return null;
     }
 
-    public void clickToContinueOrderButton() {
+    public AuthPageInOrder clickToContinueOrderButton() {
         new Actions(webDriver)
                 .click(continueOrderButton)
                 .build()
                 .perform();
+        return  new AuthPageInOrder(webDriver);
     }
 
-    public CartPage clickToDelivery(){
+    private WebElement withButtonDelivery() {
+        List<WebElement> listElement = new ArrayList<>();
+        for (WebElement webElement : listDelivery) {
+            if (webElement.findElements(By.cssSelector("li.o-checkout-radio__item")).size() == 2) {
+                return webElement.findElements(By.cssSelector("input.c-radio-button__input")).get(1);
+            }
+        }
+        return null;
+    }
+
+    public CartPage clickToButtonDelivery() {
+        WebElement webElement = withButtonDelivery();
+        System.out.println(webElement);
+        webElement.getAttribute("id");
+//        webElement.click();
+        webElement=webDriver.findElement(By.xpath("//div[contains(text(),' Оформить доставку')]"));
         new Actions(webDriver)
-                .click(withCurierButton)
+                .moveToElement(webElement)
+                .click()
                 .build()
                 .perform();
         return this;
     }
-
 }

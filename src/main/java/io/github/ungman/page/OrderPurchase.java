@@ -33,7 +33,7 @@ public class OrderPurchase {
     private WebElement fieldEmail;
     @FindBy(id = "myPhone")
     private WebElement fieldPhone;
-    @FindBy(id = "field_6")
+    @FindBy(css = "input#field_6")
     private WebElement fieldName;
     @FindBy(css = "#anotherRecipient")
     private WebElement fieldAnotherRecipient;
@@ -44,13 +44,14 @@ public class OrderPurchase {
     private WebElement labelEmailInvalid;
     @FindBy(css = "#personal-form > div > ul > li:nth-child(2) > div > label.u-error-text")
     private WebElement labelPhoneInvalid;
-    @FindBy(css = " #store-locator-list-input")
+    @FindBy(css = "#store-locator-form > ul > li:nth-child(2) > label")
     private WebElement changeToShopListButton;
-    @FindBy(css = "#store-locator-list > ul > li:nth-child(3) > ul")
+    @FindBy(css = "#store-locator-list > ul > li.c-store-list__item.clearfix")
     private List<WebElement> shopList;
-
-    //    @FindBy(css="input#shippingmethod-delivery-radio")
-    @FindBy(css = "#delivery-form-types > ul.o-checkout-radio.o-checkout__step__group-radio.u-mb-20.o-checkout__delivery > li:nth-child(2)")
+    //    @FindBy(css = "#delivery-form-types > ul.o-checkout-radio.o-checkout__step__group-radio.u-mb-20.o-checkout__delivery > li:nth-child(2)")
+    //    @FindBy(css = "#delivery-form-types > ul.o-checkout-radio.o-checkout__step__group-radio.u-mb-20.o-checkout__delivery > li:nth-child(2)")
+//    @FindBy(xpath = "//*[@id='delivery-form-types']/ul[1]/li[2]/label")
+    @FindBy(xpath = "/html/body/div[1]/div[1]/div[2]/div[1]/div[3]/div[2]/div[1]/form/ul[1]/li[2]")
     private WebElement buttonDelivery;
     @FindBy(css = "#delivery-city")
     private WebElement fieldDeliveryCity;
@@ -64,8 +65,11 @@ public class OrderPurchase {
     private WebElement selectDate;
     @FindBy(xpath = "//div[contains(@class,'drop-box drop-c-dropdown c-custom-scroll c-dropdown-text__select')]/div[1]/ul")
     private WebElement dropdownDataDelivery;
-    @FindBy(xpath="//*[@id=\"delivery-form-content\"]/div/div[2]/div[1]/div[1]/div/label[2]")
+    @FindBy(xpath = "//*[@id=\"delivery-form-content\"]/div/div[2]/div[1]/div[1]/div/label[2]")
     private WebElement labelInvalidCity;
+
+    @FindBy(css = "body > div.drop-box.drop-c-dropdown.c-custom-scroll.c-dropdown-text__select.c-dropdown_wmax-100 _scrollbar")
+    private WebElement dropdownDataDeliviry;
 
     public OrderPurchase(WebDriver webDriver) {
         this.webDriver = webDriver;
@@ -100,32 +104,21 @@ public class OrderPurchase {
                     .build()
                     .perform();
         }
-        this.webDriver.switchTo().defaultContent();
         return this;
     }
 
     public OrderPurchase setDataToFieldEmail(String text) {
-        new Actions(webDriver)
-                .sendKeys(fieldEmail, text)
-                .build()
-                .perform();
+        sendDataToField(fieldEmail, text);
         return this;
     }
 
     public OrderPurchase setDataToFieldPhone(String text) {
-        new Actions(webDriver)
-                .sendKeys(fieldPhone, text)
-                .build()
-                .perform();
+        sendDataToFieldWithoutClear(fieldPhone, text);
         return this;
     }
 
     public OrderPurchase setDataToFieldName(String text) {
-        new Actions(webDriver)
-                .sendKeys(fieldName, text)
-                .sendKeys(Keys.ENTER)
-                .build()
-                .perform();
+        sendDataToField(fieldName, text);
         return this;
     }
 
@@ -134,10 +127,7 @@ public class OrderPurchase {
         if (fieldAnotherRecipient == null)
             fieldAnotherRecipient = webDriver.findElement(By.cssSelector("#anotherRecipient"));
 
-        new Actions(webDriver)
-                .sendKeys(fieldAnotherRecipient, text)
-                .build()
-                .perform();
+        sendDataToField(fieldAnotherRecipient, text);
         return this;
     }
 
@@ -165,13 +155,32 @@ public class OrderPurchase {
         new Actions(webDriver)
                 .moveToElement(webElement)
                 .click()
-//                .click(webElement)
                 .build()
                 .perform();
     }
 
-    public void iframeSearch(WebElement webElement) {
-        webDriver.switchTo().frame(webElement);
+    public void iframeSwitch(WebElement webElement) {
+        List<WebElement> iframes = webDriver.findElements(By.tagName("iframe"));
+        System.out.println("frame" + iframes.size());
+        boolean clicked = true;
+        for (WebElement iframe : iframes) {
+            try {
+                webDriver.switchTo().frame(fieldName);
+                clickWithActions(webElement);
+            } catch (Exception e) {
+                clicked = false;
+            } finally {
+                webDriver.switchTo().defaultContent();
+            }
+        }
+        webDriver.switchTo().defaultContent();
+        if (!clicked) {
+            try {
+                webElement.click();
+            } catch (Exception e) {
+                clicked = false;
+            }
+        }
     }
 
     public String getTextFromLabelEmail() {
@@ -183,7 +192,7 @@ public class OrderPurchase {
     }
 
     public OrderPurchase clickToButtonDelivery() {
-        clickWithActions(buttonDelivery);
+        iframeSwitch(buttonDelivery);
         return this;
     }
 
@@ -208,18 +217,40 @@ public class OrderPurchase {
     }
 
     private void sendDataToField(WebElement el, String text) {
-        new WebDriverWait(webDriver, Duration.ofSeconds(10)).until(ExpectedConditions.visibilityOf(el));
-        new Actions(webDriver)
-                .sendKeys(el, "")
-                .sendKeys(el, text)
-                .build()
-                .perform();
+        new WebDriverWait(webDriver, Duration.ofSeconds(5))
+                .until(ExpectedConditions.and(
+                        ExpectedConditions.elementToBeClickable(el)
+                        , ExpectedConditions.visibilityOf(el)));
+        el.clear();
+        el.sendKeys(text);
+        el.sendKeys(Keys.ENTER);
+    }
+    private void sendDataToFieldWithoutClear(WebElement el, String text){
+        new WebDriverWait(webDriver, Duration.ofSeconds(5))
+                .until(ExpectedConditions.and(
+                        ExpectedConditions.elementToBeClickable(el)
+                        , ExpectedConditions.visibilityOf(el)));
+        el.sendKeys(text);
+        el.sendKeys(Keys.ENTER);
     }
 
-    public String getTextFromLabelInvalidCity(){
-        return  labelInvalidCity.getText();
+    public String getTextFromLabelInvalidCity() {
+        return labelInvalidCity.getText();
     }
 
+    public String getFieldNameText() {
+        return fieldName.getAttribute("value");
+    }
 
+    public String getFieldEmailText() {
+        return fieldEmail.getAttribute("value");
+    }
 
+    public String getFieldPhoneText() {
+        return fieldPhone.getAttribute("value");
+    }
+
+    public String getFieldAnotherRecipientText() {
+        return fieldAnotherRecipient.getAttribute("value");
+    }
 }
