@@ -2,7 +2,6 @@ package io.github.ungman.tests;
 
 import io.github.ungman.helper.WevDriverRunner;
 import io.github.ungman.page.AuthPageInOrder;
-import io.github.ungman.page.CartPage;
 import io.github.ungman.page.OrderPurchase;
 import io.github.ungman.page.ProductPage;
 import lombok.SneakyThrows;
@@ -35,6 +34,7 @@ public class ByGoodsByGuestWithDelivery extends WevDriverRunner {
     @SneakyThrows
     public void withOneGoods(String url) {
         new ProductPage(webDriver, url)
+                .navigate()
                 .clickToAddCart()
                 .clickToCartPage()
                 .clickToContinueOrderButton();
@@ -43,8 +43,12 @@ public class ByGoodsByGuestWithDelivery extends WevDriverRunner {
 
     @SneakyThrows
     private void withMoreThanOneGoods(String url, String url1) {
-        new ProductPage(webDriver, url).clickToAddCart();
+        new ProductPage(webDriver, url).
+                navigate()
+                .clickToAddCart()
+                .clickToCartPage();
         new ProductPage(webDriver, url1)
+                .navigate()
                 .clickToAddCart()
                 .clickToCartPage()
                 .clickToButtonDelivery()
@@ -92,7 +96,6 @@ public class ByGoodsByGuestWithDelivery extends WevDriverRunner {
                 .setDataToFieldPhone("9099099999")
                 .setDataToFieldName("Иван Иванов")
                 .getTextFromLabelEmail();
-        AssertJUnit.assertEquals("City label invalid", expectedText, textFromLabelEmail);
     }
 
 

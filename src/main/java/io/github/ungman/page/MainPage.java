@@ -2,14 +2,13 @@ package io.github.ungman.page;
 
 import lombok.Getter;
 import org.openqa.selenium.JavascriptExecutor;
-import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 
 
-public class MainPage {
+public class MainPage extends OwnPage {
 
     static String URL = "https://www.mvideo.ru";
     private final WebDriver webDriver;
@@ -18,8 +17,14 @@ public class MainPage {
     private WebElement searchProductInput;
 
     public MainPage(WebDriver webDriver) {
+        super(webDriver);
         this.webDriver = webDriver;
         PageFactory.initElements(webDriver, this);
+    }
+
+    public MainPage navigate() {
+        webDriver.navigate().to(URL);
+        return this;
     }
 
     public String getTitle() {
@@ -32,38 +37,27 @@ public class MainPage {
     }
 
     public SearchResultPage sendInputData() {
-        searchProductInput.sendKeys(Keys.ENTER);
+        setDataToFieldWithoutDelete(searchProductInput, "");
         return new SearchResultPage(this.webDriver);
     }
 
     public CartPage goCartPage() {
-        this.webDriver.navigate().to(CartPage.URL);
-        return new CartPage(this.webDriver);
+        return new CartPage(this.webDriver).navigate();
     }
 
     public MainPage inputTextToSearchInputField(String text) {
-        searchProductInput.sendKeys("");
-        searchProductInput.sendKeys(text);
+        setDataToField(searchProductInput, text);
         return this;
     }
 
+    public CartPage addUniqueGoodToCart(String product) {
+        return this.navigate()
+                .maximizeWindow()
+                .inputTextToSearchInputField(product)
+                .sendInputData()
+                .clickOnAddToBasketButton(product);
+    }
 
-//    private void closeIFrameWithNotification() {
-//        WebElement frameNotificationElement = this.webDriver.findElement(By.cssSelector(".flocktory-widget"));
-//        if (frameNotificationElement != null) {
-//            try {
-//                new WebDriverWait(webDriver, Duration.ofSeconds(3), Duration.ofMillis(250))
-//                        .until(ExpectedConditions.frameToBeAvailableAndSwitchToIt(frameNotificationElement));
-//                this.webDriver.switchTo()
-//                        .frame(frameNotificationElement)
-//                        .findElement(By.xpath("//a[@class='close']"))
-//                        .click();
-//            } catch (Exception exception) {
-//                System.out.println("Cant close windows");
-//            }
-//        }
-//        this.webDriver.switchTo().defaultContent();
-//    }
 
     public void closeNotification() {
         try {

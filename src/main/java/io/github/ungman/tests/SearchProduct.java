@@ -26,10 +26,10 @@ public class SearchProduct extends WevDriverRunner {
     @Test(dataProvider = "productInfo")
     public void searchProductWithPageObject(String textToEnterSearchField, String titleProduct) {
         webDriver.get(url);
-        WebElement cardProduct = new MainPage(webDriver)
-                .maximizeWindow()
-                .inputTextToSearchInputField(textToEnterSearchField)
-                .sendInputData()
+            WebElement cardProduct = new MainPage(webDriver)
+                    .maximizeWindow()
+                    .inputTextToSearchInputField(textToEnterSearchField)
+                    .sendInputData()
                 .getCardProductInBlockSearchResult(titleProduct);
         AssertJUnit.assertNotNull("Product not found", cardProduct);
     }

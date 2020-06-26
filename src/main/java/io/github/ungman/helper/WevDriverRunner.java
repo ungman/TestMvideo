@@ -10,10 +10,7 @@ import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.edge.EdgeDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxOptions;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.AfterTest;
-import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.BeforeSuite;
+import org.testng.annotations.*;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -66,6 +63,11 @@ public class WevDriverRunner {
         return properties;
     }
 
+    @BeforeTest
+    public void beforeTest() {
+
+    }
+
     @BeforeMethod
     public void initMethod() throws Exception {
         if (this.webDriverName.equalsIgnoreCase("chrome")) {
@@ -81,7 +83,7 @@ public class WevDriverRunner {
         } else {
             throw new Exception("Drive not init");
         }
-        webDriver.manage().timeouts().implicitlyWait(5, TimeUnit.SECONDS);
+//        webDriver.manage().timeouts().implicitlyWait(5, TimeUnit.SECONDS);
         webDriver.manage().deleteAllCookies();
     }
 

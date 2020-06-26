@@ -13,7 +13,7 @@ public class BuyGoodsByGuestWithoutDelivery extends WevDriverRunner {
     @DataProvider
     public static Object[][] dataPerson() {
         return new Object[][]{
-                {"Иванов Иван","9099099999","email@email.com"}
+                {"Иванов Иван", "9099099999", "email@email.com"}
         };
     }
 
@@ -28,9 +28,11 @@ public class BuyGoodsByGuestWithoutDelivery extends WevDriverRunner {
         String url = "https://www.mvideo.ru/products/fitnes-treker-xiaomi-mi-band-3-black-xmsh05hm-30040243";
         String url1 = "https://www.mvideo.ru/products/smennyi-remeshok-dlya-nosimogo-ustroistva-mi-band-3-4-strap-orange-30046388";
         new ProductPage(webDriver, url)
+                .navigate()
                 .clickToAddCart()
                 .clickToCartPage();
         new ProductPage(webDriver, url1)
+                .navigate()
                 .clickToAddCart()
                 .clickToCartPage()
                 .clickToContinueOrderButton()
@@ -38,7 +40,7 @@ public class BuyGoodsByGuestWithoutDelivery extends WevDriverRunner {
     }
 
     @Test(dataProvider = "dataPerson")
-    public void buyGoodsByGuestWithCashWithFirstShopOnList(String name, String phone, String email) throws InterruptedException {
+    public void buyGoodsByGuestWithCashWithFirstShopOnList(String name, String phone, String email)  {
         final OrderPurchase orderPurchase = new OrderPurchase(webDriver)
                 .payCash()
                 .clickToChangeShop()
@@ -46,11 +48,10 @@ public class BuyGoodsByGuestWithoutDelivery extends WevDriverRunner {
                 .setShop(1)
                 .setDataToFieldEmail(email)
                 .setDataToFieldPhone(phone)
-                .setDataToFieldName(name)
-                .setDataToFieldEmail(email);
+                .setDataToFieldName(name);
         AssertJUnit.assertEquals("Field name data not Correct", name, orderPurchase.getFieldNameText());
         AssertJUnit.assertEquals("Field email data not Correct", email, orderPurchase.getFieldEmailText());
-        AssertJUnit.assertEquals("Field phone data not Correct", "+7"+phone, orderPurchase.getFieldPhoneText().replace(" ",""));
+        AssertJUnit.assertEquals("Field phone data not Correct", "+7" + phone, orderPurchase.getFieldPhoneText().replace(" ", ""));
     }
 
 
@@ -62,11 +63,10 @@ public class BuyGoodsByGuestWithoutDelivery extends WevDriverRunner {
                 .setDataToFieldPhone(phone)
                 .setDataToFieldName(name)
                 .setDataToFieldAnotherRecipient(name);
-//9099099999
+
         AssertJUnit.assertEquals("Field name data not Correct", name, orderPurchase.getFieldNameText());
         AssertJUnit.assertEquals("Field email data not Correct", email, orderPurchase.getFieldEmailText());
-//        AssertJUnit.assertEquals("Field phone data not Correct", phone, orderPurchase.getFieldPhoneText());
-        AssertJUnit.assertEquals("Field AnotherRecipient data not Correct", phone, orderPurchase.getFieldAnotherRecipientText());
+        AssertJUnit.assertEquals("Field AnotherRecipient data not Correct", name, orderPurchase.getFieldAnotherRecipientText());
 
     }
 
@@ -87,12 +87,11 @@ public class BuyGoodsByGuestWithoutDelivery extends WevDriverRunner {
     public void tryWithUncorrectPhone() {
         String textFromLabelPhone = new OrderPurchase(webDriver)
                 .payCash()
-                .setDataToFieldEmail("11111")
+                .setDataToFieldPhone("11111")
                 .setDataToFieldName("123")
-                .getFieldPhoneText();
+                .getTextFromLabelPhone();
         String expectedText = "Телефон указан в неверном формате";
         AssertJUnit.assertEquals("Label text not valid", expectedText, textFromLabelPhone);
     }
-
 
 }

@@ -19,6 +19,7 @@ public class AddProductToCardFromSearchPage extends WevDriverRunner {
     @Test(dataProvider = "productInfo")
     public void addProductToCardWithPAgeObject(String url, String productName) {
         WebElement cardProduct = new SearchResultPage(webDriver, url)
+                .navigate()
                 .clickOnAddToBasketButton(productName)
                 .getCardProduct(productName);
         AssertJUnit.assertNotNull("Product not found in cart page", cardProduct);

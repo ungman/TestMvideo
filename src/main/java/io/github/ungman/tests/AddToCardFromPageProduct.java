@@ -19,6 +19,7 @@ public class AddToCardFromPageProduct extends WevDriverRunner {
     @Test(dataProvider = "productInfo")
     public void addToCardWithPageObject(String url, String productInfo) {
         WebElement cardProduct = new ProductPage(webDriver, url)
+                .navigate()
                 .clickToAddCart()
                 .clickToCartPage()
                 .getCardProduct(productInfo);

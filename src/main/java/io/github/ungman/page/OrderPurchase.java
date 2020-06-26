@@ -1,19 +1,14 @@
 package io.github.ungman.page;
 
 import org.openqa.selenium.By;
-import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
-import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.WebDriverWait;
 
-import java.time.Duration;
 import java.util.List;
 
-public class OrderPurchase {
+public class OrderPurchase extends OwnPage {
     private final WebDriver webDriver;
     @FindBy(css = "#delivery-form-content > div > div:nth-child(4) > button")
     private WebElement chooseShop;
@@ -25,10 +20,8 @@ public class OrderPurchase {
     private WebElement creditButtonChoose;
     @FindBy(css = "#payment-form > ul > li:nth-child(4)")
     private WebElement credit0ButtonChoose;
-
     @FindBy(css = "#promo-checkbox-15930736381641")
     private WebElement promo;
-
     @FindBy(id = "field_8")
     private WebElement fieldEmail;
     @FindBy(id = "myPhone")
@@ -39,7 +32,6 @@ public class OrderPurchase {
     private WebElement fieldAnotherRecipient;
     @FindBy(className = "c-cost-line__text")
     private WebElement costGoods;
-
     @FindBy(css = "#personal-form > div > ul > li:nth-child(1) > div > label.u-error-text")
     private WebElement labelEmailInvalid;
     @FindBy(css = "#personal-form > div > ul > li:nth-child(2) > div > label.u-error-text")
@@ -48,9 +40,6 @@ public class OrderPurchase {
     private WebElement changeToShopListButton;
     @FindBy(css = "#store-locator-list > ul > li.c-store-list__item.clearfix")
     private List<WebElement> shopList;
-    //    @FindBy(css = "#delivery-form-types > ul.o-checkout-radio.o-checkout__step__group-radio.u-mb-20.o-checkout__delivery > li:nth-child(2)")
-    //    @FindBy(css = "#delivery-form-types > ul.o-checkout-radio.o-checkout__step__group-radio.u-mb-20.o-checkout__delivery > li:nth-child(2)")
-//    @FindBy(xpath = "//*[@id='delivery-form-types']/ul[1]/li[2]/label")
     @FindBy(xpath = "/html/body/div[1]/div[1]/div[2]/div[1]/div[3]/div[2]/div[1]/form/ul[1]/li[2]")
     private WebElement buttonDelivery;
     @FindBy(css = "#delivery-city")
@@ -72,116 +61,70 @@ public class OrderPurchase {
     private WebElement dropdownDataDeliviry;
 
     public OrderPurchase(WebDriver webDriver) {
+        super(webDriver);
         this.webDriver = webDriver;
         PageFactory.initElements(webDriver, this);
     }
 
     public OrderPurchase clickToChangeShop() {
-        new Actions(webDriver)
-                .click(chooseShop)
-                .build()
-                .perform();
-        return this;
-    }
-
-    private OrderPurchase initButtonChangeToShopList() {
+        click(chooseShop);
         return this;
     }
 
     public OrderPurchase clickShopList() {
-        changeToShopListButton.click();
+        click(changeToShopListButton);
         return this;
-    }
-
-    private void initListShop() {
-//        this.shopList = webDriver.findElements(By.cssSelector("#store-locator-list > ul > li.c-store-list__item clearfix"));
     }
 
     public OrderPurchase setShop(int index) {
         if (index < shopList.size()) {
-            new Actions(webDriver)
-                    .click(shopList.get(index))
-                    .build()
-                    .perform();
+            click(shopList.get(index));
         }
         return this;
     }
 
     public OrderPurchase setDataToFieldEmail(String text) {
-        sendDataToField(fieldEmail, text);
+        setDataToFieldWithoutDelete(fieldEmail, text);
         return this;
     }
 
     public OrderPurchase setDataToFieldPhone(String text) {
-        sendDataToFieldWithoutClear(fieldPhone, text);
+        setDataToFieldWithoutDelete(fieldPhone, text);
         return this;
     }
 
     public OrderPurchase setDataToFieldName(String text) {
-        sendDataToField(fieldName, text);
+        setDataToFieldWithoutDelete(fieldName, text);
         return this;
     }
 
     public OrderPurchase setDataToFieldAnotherRecipient(String text) {
-
         if (fieldAnotherRecipient == null)
             fieldAnotherRecipient = webDriver.findElement(By.cssSelector("#anotherRecipient"));
-
-        sendDataToField(fieldAnotherRecipient, text);
+        setDataToField(fieldAnotherRecipient, text);
         return this;
     }
 
     public OrderPurchase payCash() {
-        clickWithActions(cashButtonChoose);
+        click(cashButtonChoose);
         return this;
     }
 
     public OrderPurchase payCard() {
-        clickWithActions(cardButtonChoose);
+        click(cardButtonChoose);
         return this;
     }
 
     public OrderPurchase payCredit() {
-        clickWithActions(creditButtonChoose);
+        click(creditButtonChoose);
         return this;
     }
 
     public OrderPurchase payCredit0() {
-        clickWithActions(credit0ButtonChoose);
+        click(credit0ButtonChoose);
         return this;
     }
 
-    private void clickWithActions(WebElement webElement) {
-        new Actions(webDriver)
-                .moveToElement(webElement)
-                .click()
-                .build()
-                .perform();
-    }
-
-    public void iframeSwitch(WebElement webElement) {
-        List<WebElement> iframes = webDriver.findElements(By.tagName("iframe"));
-        System.out.println("frame" + iframes.size());
-        boolean clicked = true;
-        for (WebElement iframe : iframes) {
-            try {
-                webDriver.switchTo().frame(fieldName);
-                clickWithActions(webElement);
-            } catch (Exception e) {
-                clicked = false;
-            } finally {
-                webDriver.switchTo().defaultContent();
-            }
-        }
-        webDriver.switchTo().defaultContent();
-        if (!clicked) {
-            try {
-                webElement.click();
-            } catch (Exception e) {
-                clicked = false;
-            }
-        }
-    }
 
     public String getTextFromLabelEmail() {
         return labelEmailInvalid.getText();
@@ -192,65 +135,48 @@ public class OrderPurchase {
     }
 
     public OrderPurchase clickToButtonDelivery() {
-        iframeSwitch(buttonDelivery);
+        click(buttonDelivery);
         return this;
     }
 
     public OrderPurchase setDataToFieldDeliveryCity(String text) {
-        sendDataToField(fieldDeliveryCity, text);
+        setDataToField(fieldDeliveryCity, text);
         return this;
     }
 
     public OrderPurchase setDataToFieldDeliveryStreet(String text) {
-        sendDataToField(fieldDeliveryStreet, text);
+        setDataToField(fieldDeliveryStreet, text);
         return this;
     }
 
     public OrderPurchase setDataToFieldDeliveryHouse(String text) {
-        sendDataToField(fieldDeliveryHouse, text);
+        setDataToField(fieldDeliveryHouse, text);
         return this;
     }
 
     public OrderPurchase setDataToFieldDeliveryAppart(String text) {
-        sendDataToField(fieldDeliveryAppart, text);
+        setDataToField(fieldDeliveryAppart, text);
         return this;
     }
 
-    private void sendDataToField(WebElement el, String text) {
-        new WebDriverWait(webDriver, Duration.ofSeconds(5))
-                .until(ExpectedConditions.and(
-                        ExpectedConditions.elementToBeClickable(el)
-                        , ExpectedConditions.visibilityOf(el)));
-        el.clear();
-        el.sendKeys(text);
-        el.sendKeys(Keys.ENTER);
-    }
-    private void sendDataToFieldWithoutClear(WebElement el, String text){
-        new WebDriverWait(webDriver, Duration.ofSeconds(5))
-                .until(ExpectedConditions.and(
-                        ExpectedConditions.elementToBeClickable(el)
-                        , ExpectedConditions.visibilityOf(el)));
-        el.sendKeys(text);
-        el.sendKeys(Keys.ENTER);
-    }
 
     public String getTextFromLabelInvalidCity() {
-        return labelInvalidCity.getText();
+        return getText(labelInvalidCity);
     }
 
     public String getFieldNameText() {
-        return fieldName.getAttribute("value");
+        return getTextFromValue(fieldName);
     }
 
     public String getFieldEmailText() {
-        return fieldEmail.getAttribute("value");
+        return getTextFromValue(fieldEmail);
     }
 
     public String getFieldPhoneText() {
-        return fieldPhone.getAttribute("value");
+        return getTextFromValue(fieldPhone);
     }
 
     public String getFieldAnotherRecipientText() {
-        return fieldAnotherRecipient.getAttribute("value");
+        return getTextFromValue(fieldAnotherRecipient);
     }
 }
