@@ -19,7 +19,7 @@ import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
 public class WevDriverRunner {
-    private final String pathToResourcesFolder = System.getProperty("user.dir") + "\\src\\main\\resources\\";
+    protected final String pathToResourcesFolder = System.getProperty("user.dir") + "\\src\\main\\resources\\";
     protected WebDriver webDriver;
     private String webDriverName;
     private Properties properties;
@@ -109,7 +109,7 @@ public class WevDriverRunner {
 
     @AfterMethod
     public void close() {
-        this.webDriver.quit();
+        this.webDriver.close();
     }
 
     @AfterTest

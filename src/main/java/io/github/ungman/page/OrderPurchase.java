@@ -22,13 +22,13 @@ public class OrderPurchase extends OwnPage {
     private WebElement credit0ButtonChoose;
     @FindBy(css = "#promo-checkbox-15930736381641")
     private WebElement promo;
-    @FindBy(id = "field_8")
+    @FindBy(css = "input#field_8")
     private WebElement fieldEmail;
-    @FindBy(id = "myPhone")
+    @FindBy(css = "input#myPhone")
     private WebElement fieldPhone;
-    @FindBy(css = "input#field_6")
+    @FindBy(css="input#field_6")
     private WebElement fieldName;
-    @FindBy(css = "#anotherRecipient")
+    @FindBy(css = "input#anotherRecipient")
     private WebElement fieldAnotherRecipient;
     @FindBy(className = "c-cost-line__text")
     private WebElement costGoods;
@@ -84,23 +84,25 @@ public class OrderPurchase extends OwnPage {
     }
 
     public OrderPurchase setDataToFieldEmail(String text) {
-        setDataToFieldWithoutDelete(fieldEmail, text);
+        System.out.println("setDataToFieldEmail");
+        setDataToField(fieldEmail, text);
         return this;
     }
 
     public OrderPurchase setDataToFieldPhone(String text) {
-        setDataToFieldWithoutDelete(fieldPhone, text);
+        System.out.println("setDataToFieldPhone");
+        setDataToField(fieldPhone, text);
         return this;
     }
 
     public OrderPurchase setDataToFieldName(String text) {
-        setDataToFieldWithoutDelete(fieldName, text);
+        System.out.println("setDataToFieldName");
+        setDataToField(fieldName, text);
         return this;
     }
 
     public OrderPurchase setDataToFieldAnotherRecipient(String text) {
-        if (fieldAnotherRecipient == null)
-            fieldAnotherRecipient = webDriver.findElement(By.cssSelector("#anotherRecipient"));
+        System.out.println("setDataToFieldAnotherRecipient");
         setDataToField(fieldAnotherRecipient, text);
         return this;
     }
@@ -140,21 +142,25 @@ public class OrderPurchase extends OwnPage {
     }
 
     public OrderPurchase setDataToFieldDeliveryCity(String text) {
+        System.out.println("setDataToFieldDeliveryCity");
         setDataToField(fieldDeliveryCity, text);
         return this;
     }
 
     public OrderPurchase setDataToFieldDeliveryStreet(String text) {
+        System.out.println("setDataToFieldDeliveryStreet");
         setDataToField(fieldDeliveryStreet, text);
         return this;
     }
 
     public OrderPurchase setDataToFieldDeliveryHouse(String text) {
+        System.out.println("setDataToFieldDeliveryHouse");
         setDataToField(fieldDeliveryHouse, text);
         return this;
     }
 
     public OrderPurchase setDataToFieldDeliveryAppart(String text) {
+        System.out.println("setDataToFieldDeliveryAppart");
         setDataToField(fieldDeliveryAppart, text);
         return this;
     }

@@ -29,7 +29,6 @@ public class SearchProduct extends WevDriverRunner {
             WebElement cardProduct = new MainPage(webDriver)
                     .maximizeWindow()
                     .inputTextToSearchInputField(textToEnterSearchField)
-                    .sendInputData()
                 .getCardProductInBlockSearchResult(titleProduct);
         AssertJUnit.assertNotNull("Product not found", cardProduct);
     }

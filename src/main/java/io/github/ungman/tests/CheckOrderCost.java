@@ -51,7 +51,7 @@ public class CheckOrderCost extends WevDriverRunner {
         do {
             currentPrice += uniqueGoodToCart(positions)
                     .getOrderPrice();
-        } while (currentPrice <= price || usedGoods.size() != positions.size());
+        } while (currentPrice <= price && usedGoods.size() != positions.size());
         System.out.println(currentPrice);
         AssertJUnit.assertTrue("Goods price less than " + price, price < currentPrice);
     }
@@ -75,18 +75,15 @@ public class CheckOrderCost extends WevDriverRunner {
 
 
     private CartPage multiGoodToCard(List<String> positions) {
+        //rework to addToCard
         String product = HelperForWorkingList.getRandomStringFromList(positions);
-        if (!usedGoods.contains(product)) {
-            usedGoods.add(product);
-            return new MainPage(webDriver).addUniqueGoodToCart(product);
-        } else {
-            return new CartPage(webDriver).addToGoods(product);
-        }
+        return new MainPage(webDriver)
+                .navigate()
+                .addMultiItem(product);
     }
 
 
     private void fillListData() {
-        positionsListLessThan5000.add("Микроволновая печь соло Gorenje MO17E1W");
         positionsListLessThan5000.add("Крышка для посуды в микроволновую печь Plast Team 24,8см (PT1521/МВНАТ-26)");
         positionsListLessThan5000.add("Оперативная память Transcend 8GB JM2666HLB-8G");
         positionsListLessThan5000.add("Внутренний SSD накопитель HP 250GB S700 2.5 (2DP98AA#ABB)");

@@ -1,20 +1,34 @@
 package io.github.ungman.page;
 
-import lombok.Getter;
-import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.By;
+import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+
+import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
 
 
 public class MainPage extends OwnPage {
 
-    static String URL = "https://www.mvideo.ru";
+    private static final String URL = "https://www.mvideo.ru/";
     private final WebDriver webDriver;
-    @Getter
     @FindBy(xpath = "//*[@id=\"frm-search-text\"]")
     private WebElement searchProductInput;
+    @FindBy(css = "#js-mini-basket")
+    private WebElement basketButton;
+    @FindBy(css = "#js-mini-basket > a > i > span")
+    private WebElement spanWithCountGoodsInCart;
+    @FindBy(css = "div.tooltipster-box > span")
+    private WebElement popupCityClose;
+    private List<WebElement> itemsOnCart;
+    private boolean isClosedPopup = false;
+    private boolean firstLaunch = true;
 
     public MainPage(WebDriver webDriver) {
         super(webDriver);
@@ -22,7 +36,37 @@ public class MainPage extends OwnPage {
         PageFactory.initElements(webDriver, this);
     }
 
+    public static String getUrl() {
+        return URL;
+    }
+
     public MainPage navigate() {
+//        System.out.printf("Current url: %s %s  \n", webDriver.getCurrentUrl(), URL);
+
+        if (!webDriver.getCurrentUrl().equalsIgnoreCase(URL)) {
+            webDriver.navigate().to(URL);
+        }
+        return this;
+    }
+
+    private void closePopupCityChoose() {
+        if (popupCityClose != null && !isClosedPopup && firstLaunch) {
+            try {
+                click(popupCityClose);
+                isClosedPopup = true;
+            } catch (Exception e) {
+                System.out.println("Popup not found");
+            }
+        }
+    }
+
+    public MainPage isFirstLaunch(boolean status) {
+        this.firstLaunch = status;
+        return this;
+    }
+
+    public MainPage navigateReload() {
+        System.out.println(URL);
         webDriver.navigate().to(URL);
         return this;
     }
@@ -37,7 +81,8 @@ public class MainPage extends OwnPage {
     }
 
     public SearchResultPage sendInputData() {
-        setDataToFieldWithoutDelete(searchProductInput, "");
+//        setDataToField(searchProductInput, Keys.ENTER);
+        setDataToField(searchProductInput,"");
         return new SearchResultPage(this.webDriver);
     }
 
@@ -45,25 +90,66 @@ public class MainPage extends OwnPage {
         return new CartPage(this.webDriver).navigate();
     }
 
-    public MainPage inputTextToSearchInputField(String text) {
+    public SearchResultPage inputTextToSearchInputField(String text) {
         setDataToField(searchProductInput, text);
-        return this;
+        return new SearchResultPage(this.webDriver);
     }
 
     public CartPage addUniqueGoodToCart(String product) {
         return this.navigate()
                 .maximizeWindow()
                 .inputTextToSearchInputField(product)
-                .sendInputData()
+                .clickOnAddToBasketButton(product);
+//                .navigate();
+    }
+
+    public CartPage addUniqueGoodToCartWithoutLoadPage(String product) {
+        return this.maximizeWindow()
+                .inputTextToSearchInputField(product)
                 .clickOnAddToBasketButton(product);
     }
 
-
-    public void closeNotification() {
+    public String getCountItemInCart() {
+        navigate();
         try {
-            ((JavascriptExecutor) webDriver).executeScript("window.alert = function() {}; window.prompt = function() {return null}; window.confirm = function() {return true}");
+            initListItemsOnBasket();
+            if (basketButton != null && itemsOnCart != null) {
+                this.moveToElement(basketButton);
+                return getText(spanWithCountGoodsInCart);
+            }
         } catch (Exception e) {
-            System.out.println("Close popup;");
+            System.out.println("dont found elem");
         }
+        return null;
+    }
+
+    public boolean itemInCart(String product) {
+        navigate();
+        initListItemsOnBasket();
+        if (basketButton != null && itemsOnCart != null) {
+            return itemsOnCart.stream()
+                    .anyMatch(el -> {
+                        int maxLenTitleInCard = 35;
+                        String product1 = (product.length() > maxLenTitleInCard) ? product.substring(0, maxLenTitleInCard) : product;
+                        System.out.println(product1);
+                        return getTextWithoutWait(el).toLowerCase().contains(product1.toLowerCase());
+                    });
+        }
+        return false;
+    }
+
+    public CartPage addMultiItem(String product) {
+        if (!itemInCart(product)) {
+            return new MainPage(webDriver).addUniqueGoodToCart(product);
+        } else {
+            return new CartPage(webDriver).navigate().addToGoods(product);
+        }
+    }
+
+    private void initListItemsOnBasket() {
+//        if(webDriver.getCurrentUrl().equalsIgnoreCase(URL))
+//            navigateReload();
+        moveToElement(basketButton);
+        itemsOnCart = webDriver.findElements(By.cssSelector("h4.mini-basket-product-name > div.sel-mini-cart-prod-title"));
     }
 }

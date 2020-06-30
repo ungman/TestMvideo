@@ -26,76 +26,77 @@ public class ByGoodsByGuestWithDelivery extends WevDriverRunner {
         return new Object[][]{
                 {
                         "https://www.mvideo.ru/products/holodilnik-indesit-itf-018-w-20051784",
-                        "Мы не знаем такой город. Проверьте его написание или укажите другой."
+                        "Мы не знаем так    ой город. Проверьте его написание или укажите другой."
                 }
         };
     }
 
     @SneakyThrows
-    public void withOneGoods(String url) {
-        new ProductPage(webDriver, url)
+    public OrderPurchase withOneGoods(String url) {
+        return new ProductPage(webDriver, url)
                 .navigate()
                 .clickToAddCart()
                 .clickToCartPage()
-                .clickToContinueOrderButton();
-        new AuthPageInOrder(webDriver).clickToContinueAsGuest();
+//                .clickToButtonDelivery()
+                .clickToContinueOrderButton()
+                .clickToContinueAsGuest();
     }
 
     @SneakyThrows
-    private void withMoreThanOneGoods(String url, String url1) {
+    private OrderPurchase withMoreThanOneGoods(String url, String url1) {
         new ProductPage(webDriver, url).
                 navigate()
                 .clickToAddCart()
-                .clickToCartPage();
-        new ProductPage(webDriver, url1)
+                .clickReturnToShop();
+        return new ProductPage(webDriver, url1)
                 .navigate()
                 .clickToAddCart()
                 .clickToCartPage()
                 .clickToButtonDelivery()
-                .clickToContinueOrderButton();
-        new AuthPageInOrder(webDriver).clickToContinueAsGuest();
+                .clickToContinueOrderButton()
+                .clickToContinueAsGuest();
     }
 
     @Test(dataProvider = "dataOneGood")
     public void withOneItemChoose(String url, String text1) {
-        withOneGoods(url);
-        new OrderPurchase(webDriver)
+        withOneGoods(url)
                 .clickToButtonDelivery()
-                .setDataToFieldDeliveryAppart("00")
                 .setDataToFieldDeliveryStreet("Нулевая улица")
-                .setDataToFieldDeliveryHouse("00")
+                .setDataToFieldDeliveryHouse("07")
+                .setDataToFieldDeliveryAppart("00")
                 .payCash()
-                .setDataToFieldEmail("aaaaa@mail.ru")
+                .setDataToFieldName("Иван Иванов")
                 .setDataToFieldPhone("9099099999")
-                .setDataToFieldName("Иван Иванов");
+                .setDataToFieldEmail("aaaaa@mail.ru")
+        ;
     }
 
     @Test(dataProvider = "dataMultiGoods")
     public void withMoreItemChoose(String url, String url1, String text1) {
-        withMoreThanOneGoods(url, url1);
-        new OrderPurchase(webDriver)
-                .setDataToFieldDeliveryAppart("00")
+        withMoreThanOneGoods(url, url1)
                 .setDataToFieldDeliveryStreet("Нулевая улица")
-                .setDataToFieldDeliveryHouse("00")
+                .setDataToFieldDeliveryHouse("07")
+                .setDataToFieldDeliveryAppart("00")
                 .payCash()
-                .setDataToFieldEmail("aaaaa@mail.ru")
+                .setDataToFieldName("Иван Иванов")
                 .setDataToFieldPhone("9099099999")
-                .setDataToFieldName("Иван Иванов");
+                .setDataToFieldEmail("aaaaa@mail.ru")
+        ;
     }
 
     @Test(dataProvider = "dataMultiGoods")
     public void withMoreThanOneItemNotCorrectCity(String url, String url1, String expectedText) {
-        withMoreThanOneGoods(url, url1);
-        String textFromLabelEmail = new OrderPurchase(webDriver)
+        String textFromLabelEmail = withMoreThanOneGoods(url, url1)
                 .setDataToFieldDeliveryCity("Неправильный город")
-                .setDataToFieldDeliveryAppart("00")
                 .setDataToFieldDeliveryStreet("Нулевая улица")
-                .setDataToFieldDeliveryHouse("00")
+                .setDataToFieldDeliveryHouse("07")
+                .setDataToFieldDeliveryAppart("00")
                 .payCash()
-                .setDataToFieldEmail("aaaaa@mail.ru")
-                .setDataToFieldPhone("9099099999")
                 .setDataToFieldName("Иван Иванов")
-                .getTextFromLabelEmail();
+                .setDataToFieldPhone("9099099999")
+                .setDataToFieldEmail("aaaaa@mail.ru")
+                .getFieldEmailText();
+        AssertJUnit.assertEquals("Email not correct", "aaaaa@mail.ru", textFromLabelEmail);
     }
 
 

@@ -1,7 +1,9 @@
 package io.github.ungman.page;
 
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.openqa.selenium.*;
 import org.openqa.selenium.interactions.Actions;
+import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
@@ -9,65 +11,134 @@ import java.time.Duration;
 import java.util.List;
 
 public class OwnPage {
-    private WebDriver webDriver;
+    private final WebDriver webDriver;
+    public int durationSecond = 10;
+    public int sleepMilis = 250;
+    private final JavascriptExecutor javascriptExecutor;
+    private final WebDriverWait webDriverWait;
 
     public OwnPage(WebDriver webDriver) {
         this.webDriver = webDriver;
+        javascriptExecutor = (JavascriptExecutor) webDriver;
+        this.webDriverWait = new WebDriverWait(webDriver, Duration.ofSeconds(durationSecond), Duration.ofMillis(sleepMilis));
     }
 
     protected void click(WebElement el) {
-        initWithVisibleAndClickable(el);
         new Actions(webDriver)
-                .click(el)
+                .moveToElement(initWithVisibleAndClickable(el))
+                .click()
                 .build()
                 .perform();
     }
 
     protected void setDataToField(WebElement el, String text) {
-        initWithVisibleAndClickable(el);
-        el.clear();
-        el.sendKeys(text);
-        el.sendKeys(Keys.ENTER);
+        try {
+//            el = initWithVisibleAndClickable(el);
+            el = initWithVisibleAndClickable(el);
+
+            el.clear();
+            el.sendKeys(text,Keys.ENTER);
+//            new Actions(webDriver)
+//                    .moveToElement(el)
+//                    .click()
+//                    .sendKeys(Keys.HOME,Keys.chord(Keys.SHIFT,Keys.END,Keys.ENTER),text)
+//                    .build()
+//                    .perform();
+//        el.sendKeys(Keys.HOME,Keys.chord(Keys.SHIFT,Keys.END), text);
+
+        } catch (Exception e) {
+            System.out.println("Cant input text in: " + el.toString());
+            System.out.println("tag name:" + el.getTagName());
+            System.out.println("id: " + el.getAttribute("id"));
+            System.out.println("classname: " + el.getAttribute("class"));
+            e.printStackTrace();
+        }
     }
 
-    protected void setDataToFieldWithoutDelete(WebElement el, String text) {
-        initWithVisibleAndClickable(el);
-        el.sendKeys(text);
-        el.sendKeys(Keys.ENTER);
+    protected void setDataToFieldWithoutDelete(WebElement el, CharSequence... text) {
+        try {
+//            webDriverWait.until(ExpectedConditions.refreshed(ExpectedConditions.stalenessOf(el)));
+            el = initWithVisibleAndClickable(el);
+            el.sendKeys(text);
+        } catch (Exception e) {
+            System.out.println("Cant input text in: " + el.toString());
+            System.out.println("tag name:" + el.getTagName());
+            System.out.println("id: " + el.getAttribute("id"));
+            System.out.println("classname: " + el.getAttribute("class"));
+            e.printStackTrace();
+        }
     }
 
-    public void initWithVisibleAndClickable(WebElement el) {
-        new WebDriverWait(webDriver, Duration.ofSeconds(10)).until(
-                ExpectedConditions.and(
-                        ExpectedConditions.elementToBeClickable(el),
-                        ExpectedConditions.visibilityOf(el)
-                )
-        );
-    }
 
     protected String getTextFromValue(WebElement el) {
-        initWithVisible(el);
-        return el.getAttribute("value");
+        return webDriverWait.until(new ExpectedCondition<String>() {
+            @Nullable
+            @Override
+            public String apply(@Nullable WebDriver webDriver) {
+                String value= el.getAttribute("value");
+                if(value==null || value.isEmpty())
+                    return null;
+                return value;
+            }
+        });
+//        try {
+//            el = initWithVisibleAndClickable(el);
+//            String valueFromSelenium = el.getAttribute("value");
+//            String valueFromJavaScript = getValueFromJs(el);
+////            if (valueFromJavaScript == null)
+////                return valueFromSelenium;
+////            if (valueFromSelenium == null)
+////                return valueFromJavaScript;
+//            return (valueFromSelenium.isEmpty()) ? valueFromJavaScript : valueFromSelenium;
+//        } catch (Exception e) {
+//            System.out.println("Dont geted data");
+//        }
+//        return null;
     }
 
     protected String getText(WebElement el) {
-        initWithVisible(el);
+        return initWithVisible(el).getText();
+    }
+    protected String getTextWithoutWait(WebElement el) {
         return el.getText();
     }
-
-    protected void initWithVisible(WebElement el) {
-        new WebDriverWait(webDriver, Duration.ofSeconds(10)).until(
-                ExpectedConditions.and(
-                        ExpectedConditions.visibilityOf(el)
-                )
+    protected WebElement initWithVisible(By by) {
+        return webDriverWait.until(
+                ExpectedConditions.visibilityOfElementLocated(by)
         );
+    }
+    protected List<WebElement> initElementsWithVisible(By by){
+        return webDriverWait.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(by));
+    }
+    protected WebElement initWithVisible(WebElement el) {
+        return webDriverWait.until(
+                ExpectedConditions.visibilityOf(el)
+        );
+    }
+    protected WebElement in(By by) {
+        return webDriverWait.until(
+                ExpectedConditions.presenceOfElementLocated(by)
+        );
+    }
+
+    public WebElement initWithVisibleAndClickable(By by) {
+        return webDriverWait.until(ExpectedConditions.elementToBeClickable(by));
+    }
+    public WebElement initWithVisibleAndClickable(WebElement el) {
+        return webDriverWait.until(ExpectedConditions.elementToBeClickable(el));
     }
 
     protected void moveToElement(WebElement el) {
         new Actions(webDriver)
-                .moveToElement(el)
+                .moveToElement(initWithVisible(el))
                 .build()
                 .perform();
+    }
+
+    private String getValueFromJs(WebElement el) {
+        if (el.getAttribute("id") != null)
+            return (String) javascriptExecutor.executeScript(String.format("return $('#%s').val();", el.getAttribute("id")));
+        return null;
     }
     //    private void closeIFrameWithNotification() {
 //        WebElement frameNotificationElement = this.webDriver.findElement(By.cssSelector(".flocktory-widget"));

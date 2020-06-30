@@ -17,8 +17,9 @@ public class AuthPageInOrder extends OwnPage {
         PageFactory.initElements(webDriver, this);
     }
 
-    public void clickToContinueAsGuest() {
+    public OrderPurchase clickToContinueAsGuest() {
         click(buttonContinueAsGuest);
+        return new OrderPurchase(webDriver);
     }
 
 }

@@ -17,7 +17,7 @@ public class AddProductToCardFromSearchPage extends WevDriverRunner {
     }
 
     @Test(dataProvider = "productInfo")
-    public void addProductToCardWithPAgeObject(String url, String productName) {
+    public void addProductToCardWithPageObject(String url, String productName) {
         WebElement cardProduct = new SearchResultPage(webDriver, url)
                 .navigate()
                 .clickOnAddToBasketButton(productName)
