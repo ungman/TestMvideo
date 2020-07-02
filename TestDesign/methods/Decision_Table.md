@@ -2,11 +2,6 @@
 Таблица решений  - бизнес - логика задокументирована как набор условий и действий
 и представленна в виде таблицы
 
-No, this is not possible with GitHub-Flavored Markdown. As the spec explains (emphasis added):
-
-The remainder of the table’s rows may vary in the number of cells. If there are a number of cells fewer than the number of cells in the header row, empty cells are inserted. If there are greater, the excess is ignored:
-
-Of course, you can always fall back to raw HTML. In fact, GitHub includes the rowspan (and colspan) attribute on their whitelist.
 
 <table>
 <thead>
