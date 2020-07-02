@@ -38,7 +38,7 @@ Of course, you can always fall back to raw HTML. In fact, GitHub includes the ro
     <td>user</td>
   </tr>
   <tr>
-    <td rowspan="2">Действия</td>
+    <td rowspan=3">Действия</td>
     <td>Данная страница недостпупна с вашего региона</td>
     <td>-</td>
     <td>+</td>
@@ -51,7 +51,7 @@ Of course, you can always fall back to raw HTML. In fact, GitHub includes the ro
     <td>-</td>
   </tr>
   <tr>
-    <td>Страница отображвется</td>
+    <td>Страница отображается</td>
     <td>-</td>
     <td>-</td>
     <td>+</td>
