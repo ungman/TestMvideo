@@ -99,6 +99,7 @@
 		</tr>
 	</tbody>
 </table>
+
 ### Краткое описание методики
 
 #### [Метод разбиения на эквивалентные классы (Equivalence partition)](methods/Equivalence_Partitioning.md)<br>
